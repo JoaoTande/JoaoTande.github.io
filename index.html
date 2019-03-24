@@ -4,11 +4,12 @@
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
-	<script type="text/javascript" src="graphJ.js"></script>  
+	<script type="text/javascript" src="message.js"></script>
+    	<script type="text/javascript" src="graphJ.js"></script>  
    </head>  
   <body> 
-	<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-<p></p>
+	<div id="container" style="min-width: 510px; height: 400px; margin: 0 auto"></div>
+	<p id="graficosBotoes"></p>
 <p></p>
 <h2>RELACAO DA CARTEIRA</h2>
 <p></p>
@@ -33,14 +34,20 @@
 </form>  
 
 <script>
+	//readTextFile("API_Key.txt");
 	var empresa1 = "VALE3"
 	var empresa2 = "UNIP6"
 	var empresa3 = "ITSA4"
 	var empresa4 = "GOAU4"
+	var empresa5 = "EZTC3"
+	var empresa6 = "LCAM3"
 	calleverthing(empresa1, 43.3);
-	calleverthing(empresa2, 39.4);
+	//calleverthing(empresa2, 39.4);
 	calleverthing(empresa3, 13.45);
 	calleverthing(empresa4, 7.47);
+	calleverthing(empresa5, 27.34);
+	calleverthing(empresa6, 39.35);
+	//printGraf(empresa4);
 </script>
 
     </body>  
