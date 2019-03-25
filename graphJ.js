@@ -1,5 +1,5 @@
 var listaDeAcoes = [];
-
+var diaAtual;
 
 function calleverthing(empresa, Inicial){
 	var linkJ = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=" + empresa + ".SA&interval=5min&apikey=PN6ZAMT6VK4BZTFU"
@@ -63,8 +63,26 @@ function createCallback(empresa, Inicial) {
     var serie = myObj["Time Series (5min)"];
     
     var listaJ = [];
+    var d = new Date();
+    var month = d.getUTCMonth() + 1; //months from 1-12
+    var day = d.getUTCDate();
+    var year = d.getUTCFullYear();
+    var dateString = year +"-" + month +"-" + day + " " + "00:00:01";
+    diaAtual = Date.parse(dateString);//Date.parse("2019-03-22 00:00:01");
+    
+    var ultimoPreco = 0;
+    var ultimoPonto = 0;
+   
     for(x in serie){
-       listaJ.unshift([x, parseFloat(serie[x]["4. close"])]);
+	var hora = Date.parse(x)-7200000;
+	if(hora > diaAtual){
+		listaJ.unshift([hora, parseFloat(serie[x]["4. close"])]);
+	}else{
+		if(hora > ultimoPonto){
+			ultimoPonto = hora;
+			ultimoPreco = parseFloat(serie[x]["4. close"]);
+		}
+	}
     }
 
     var Atual = parseFloat(serie[Object.keys(serie)[0]]["4. close"]);
@@ -79,7 +97,7 @@ function createCallback(empresa, Inicial) {
 
     createButtons(empresa);
 
-    listaDeAcoes.push({nome:empresa, lista:listaJ}); //{type:"Fiat", model:"500", color:"white"}
+    listaDeAcoes.push({nome:empresa, lista:listaJ, lastprice:ultimoPreco, myprice:Inicial}); //{type:"Fiat", model:"500", color:"white"}
 
     //chartJoao2(listaJ, empresa);
     for(x in listaJ){
@@ -93,20 +111,34 @@ function createCallback(empresa, Inicial) {
 function printGraf(empresa){
 	for(x in listaDeAcoes){
 		if(listaDeAcoes[x].nome == empresa){
-			chartJoao2(listaDeAcoes[x].lista, listaDeAcoes[x].nome);
+			chartJoao2(listaDeAcoes[x].lista, listaDeAcoes[x].nome, listaDeAcoes[x].lastprice, listaDeAcoes[x].myprice);
 		}
 
 	}
 }
 
 
-function chartJoao2(data, empresa) {
-     Highcharts.chart('container', {
+function chartJoao2(data, empresa, ultimopreco, meupreco) {
+     var valorAtual = data[data.length-1][1];
+     var diferenca = valorAtual - ultimopreco;
+     var perc = (diferenca/ultimopreco)*100;
+     perc = Math.round(perc * 100) / 100;     
+     var titulo = empresa +" ("+ perc + "%) R$ "+valorAtual;
+     var estiloAzul = {color: '#00F',font: 'bold 18px "Trebuchet MS", Verdana, sans-serif'}
+     var estiloVermelho = {color: '#F00',font: 'bold 18px "Trebuchet MS", Verdana, sans-serif'}
+     var estilo;
+     if(perc >= 0){
+        estilo = estiloAzul;
+     }else{
+	estilo = estiloVermelho;
+     }
+
+      Highcharts.chart('container', {
       chart: { zoomType: 'x'},
-      title: {text: empresa},
+      title: {text: titulo, style: estilo},
       subtitle: {text: document.ontouchstart === undefined ?'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'},
       xAxis: {type: 'datetime'},
-      yAxis: {title: {text: 'Exchange rate'}},
+      yAxis: {title: {text: 'Preço R$'}},
       legend: {enabled: false},
       plotOptions: {
         area: {
@@ -135,6 +167,13 @@ function chartJoao2(data, empresa) {
         type: 'area',
         name: 'R$',
         data: data
-      }]
+      },{
+        name: 'Fechamento',
+        data: [[diaAtual+25200000,ultimopreco],[diaAtual+50400000,ultimopreco]]
+      }//,{
+       // name: 'Meu preço',
+        //data: [[diaAtual+25200000,meupreco],[diaAtual+50400000,meupreco]]
+      //}
+]
     });
   }
